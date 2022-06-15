@@ -1,0 +1,2 @@
+geopandas==0.10.2
+xarray==0.20.1
