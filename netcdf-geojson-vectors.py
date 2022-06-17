@@ -31,29 +31,35 @@ def netcdf2geojson(config_file, input_file, output_dir, max_records=None):
     """Converts NetCDF file to GeoJSON based on config"""
     conf = read_config(config_file)
 
+    # Make sure output path exists
     if os.path.exists(output_dir) is False:
         os.makedirs(output_dir)
     output_file = Path(output_dir).joinpath(Path(input_file).stem + '.json')
     print(f'Reading {input_file}')
 
+    # Read dataset and remove nan values
     local_dataset = xr.open_dataset(input_file)
     df = local_dataset.to_dataframe()
     df = df.dropna(how='any', axis=0).reset_index()
 
+    # Limit records (generally for testing)
     if max_records is not None:
         df = df[0: int(max_records)]
 
+    # Convert extents from 0 - 360 to -180 - 180
     if conf['is360'] is True:
         df[conf['lonVar']] = (df[conf['lonVar']] + 180) % 360 - 180
 
     print(df)
     data = {}
 
+    # Set output values for speed dire
     if conf.get('speedVar') and conf.get('dirVar'):
         print('Using speedVar and dirVar')
         data['speed'] = df[conf['speedVar']]
         data['dir'] = df[conf['dirVar']]
 
+    # Convert u and v components to speed and dir if desired
     if conf.get('uVar') and conf.get('vVar'):
         if conf['convertUV'] is True:
             print('Calculating speed and direction from uVar and vVar')
@@ -64,17 +70,24 @@ def netcdf2geojson(config_file, input_file, output_dir, max_records=None):
             data['u'] = df[conf['uVar']]
             data['v'] = df[conf['vVar']]
 
+    # Convert to geopandas dataframe
     print('Converting to GeoJSON')
     gdf = geopandas.GeoDataFrame(data, geometry=geopandas.points_from_xy(df[conf['lonVar']], df[conf['latVar']]))
     print(gdf)
 
+    # Use geopandas to write out dataframe as GeoJSON
     print(f'Writing {output_file}')
     gdf.to_file(f'{output_file}', driver="GeoJSON")
     print(f'Created {output_file}')
 
 
 def read_config(config_file):
-    """Parses a JSON dataset config file"""
+    """
+    Parses a JSON dataset config file
+    Parameters
+    ----------
+    config_file = path to configuration file
+    """
     config = None
     with open(config_file) as config_f:
         config = json.load(config_f)
@@ -95,7 +108,7 @@ def uv2dir(u, v):
 
 def uv2speed(u, v):
     """
-    Calculates speed from u and v wind components
+    Calculates speed from u and v components
     Parameters
     ----------
     u = west/east direction
@@ -140,7 +153,12 @@ parser.add_argument(
 
 args = parser.parse_args()
 if args.input_dir:
-    input_files = None
+    input_files = Path(args.input_dir).glob('*.nc')
+    for input_file in input_files:
+        netcdf2geojson(args.config_file,
+                       input_file,
+                       args.output_dir,
+                       args.max_records)
 else:
     netcdf2geojson(args.config_file,
                    args.input_file,
