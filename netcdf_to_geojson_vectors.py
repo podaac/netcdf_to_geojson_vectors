@@ -13,7 +13,7 @@
 # limitations under the License.
 """
 ================
-netcdf-geojson-vectors.py
+netcdf_to_geojson_vectors.py
 ================
 
 Convert CF-compliant NetCDF files with vector attributes to GeoJSON

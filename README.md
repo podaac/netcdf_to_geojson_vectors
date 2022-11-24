@@ -1,4 +1,4 @@
-# netcdf-geojson-vectors
+# NetCDF to GeoJSON Vectors
 
 Convert CF-compliant NetCDF files with vector attributes to GeoJSON
 
@@ -11,7 +11,7 @@ Install Python requirements:
 ### Arguments
 
 ```
-netcdf-geojson-vectors.py [-h] [-c CONFIG_FILE] [-d INPUT_DIR] [-i INPUT_FILE] [-m MAX_RECORDS] [-o OUTPUT_DIR]
+netcdf_to_geojson_vectors.py [-h] [-c CONFIG_FILE] [-d INPUT_DIR] [-i INPUT_FILE] [-m MAX_RECORDS] [-o OUTPUT_DIR]
 ```
 
 ```
@@ -31,7 +31,7 @@ netcdf-geojson-vectors.py [-h] [-c CONFIG_FILE] [-d INPUT_DIR] [-i INPUT_FILE] [
 ## Example
 
 ```shell
-./netcdf-geojson-vectors.py -c sample_oscar.cfg -i ./data/oscar_currents_final_20200101.nc -o output/
+./netcdf_to_geojson_vectors.py -c sample_oscar.cfg -i ./data/oscar_currents_final_20200101.nc -o output/
 ```
 
 ## Configuration Options
