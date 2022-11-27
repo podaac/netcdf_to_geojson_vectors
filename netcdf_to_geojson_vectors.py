@@ -73,6 +73,15 @@ def netcdf2geojson(config_file, input_file, output_dir, max_records=None):
         data['u'] = df[conf['uVar']]
         data['v'] = df[conf['vVar']]
 
+    # Pass through any specified extra variables
+    if conf.get('extraVars'):
+        extraVars = conf.get('extraVars')
+        if isinstance(extraVars, str):
+            extraVars = [extraVars]
+        for var in extraVars:
+            print(f'Including {var}')
+            data[var] = df[var]
+
     # Convert to geopandas dataframe
     print('Converting to GeoJSON')
     gdf = geopandas.GeoDataFrame(data, geometry=geopandas.points_from_xy(df[conf['lonVar']], df[conf['latVar']]))

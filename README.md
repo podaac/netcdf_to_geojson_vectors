@@ -45,3 +45,4 @@ netcdf_to_geojson_vectors.py [-h] [-c CONFIG_FILE] [-d INPUT_DIR] [-i INPUT_FILE
 * convertUV: Convert `u` and `v` components to `magnitude` and `direction`
 * convertMagDir: Convert `magnitude` and `direction` components to `u` and `v`
 * is360: Convert extents from `0 - 360` to `-180 - 180`
+* extraVars: An array of extra variables to include with the GeoJSON output
