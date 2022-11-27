@@ -53,22 +53,25 @@ def netcdf2geojson(config_file, input_file, output_dir, max_records=None):
     print(df)
     data = {}
 
-    # Set output values for speed dire
-    if conf.get('speedVar') and conf.get('dirVar'):
-        print('Using speedVar and dirVar')
-        data['speed'] = df[conf['speedVar']]
-        data['dir'] = df[conf['dirVar']]
+    # Set output values for magnitude and direction
+    if conf.get('magnitudeVar') and conf.get('directionVar'):
+        if conf['convertMagDir'] is True:
+            print('Calculating u and v from magnitudeVar and directionVar')
+            data['u'] = df.apply(lambda x: magdir2u(x[conf['magnitudeVar']], x[conf['directionVar']]), axis=1)
+            data['v'] = df.apply(lambda x: magdir2v(x[conf['magnitudeVar']], x[conf['directionVar']]), axis=1)
+        print('Using magnitudeVar and directionVar')
+        data['magnitude'] = df[conf['magnitudeVar']]
+        data['direction'] = df[conf['directionVar']]
 
-    # Convert u and v components to speed and dir if desired
+    # Convert u and v components to magnitude and direction if desired
     if conf.get('uVar') and conf.get('vVar'):
         if conf['convertUV'] is True:
-            print('Calculating speed and direction from uVar and vVar')
-            data['speed'] = df.apply(lambda x: uv2speed(x[conf['uVar']], x[conf['vVar']]), axis=1)
-            data['dir'] = df.apply(lambda x: uv2dir(x[conf['uVar']], x[conf['vVar']]), axis=1)
-        else:
-            print('Using uVar and vVar')
-            data['u'] = df[conf['uVar']]
-            data['v'] = df[conf['vVar']]
+            print('Calculating magnitude and direction from uVar and vVar')
+            data['magnitude'] = df.apply(lambda x: uv2magnitude(x[conf['uVar']], x[conf['vVar']]), axis=1)
+            data['direction'] = df.apply(lambda x: uv2direction(x[conf['uVar']], x[conf['vVar']]), axis=1)
+        print('Using uVar and vVar')
+        data['u'] = df[conf['uVar']]
+        data['v'] = df[conf['vVar']]
 
     # Convert to geopandas dataframe
     print('Converting to GeoJSON')
@@ -94,7 +97,7 @@ def read_config(config_file):
     return config
 
 
-def uv2dir(u, v):
+def uv2direction(u, v):
     """
     Calculates direction from u and v components
     Parameters
@@ -102,20 +105,46 @@ def uv2dir(u, v):
     u = west/east direction
     v = south/north direction
     """
-    dir = (270 - np.rad2deg(np.arctan2(v, u))) % 360
-    return dir
+    direction = (270 - np.rad2deg(np.arctan2(v, u))) % 360
+    return direction
 
 
-def uv2speed(u, v):
+def uv2magnitude(u, v):
     """
-    Calculates speed from u and v components
+    Calculates magnitude from u and v components
     Parameters
     ----------
     u = west/east direction
     v = south/north direction
     """
-    speed = np.sqrt(np.square(u) + np.square(v))
-    return speed
+    magnitude = np.sqrt(np.square(u) + np.square(v))
+    return magnitude
+
+
+def magdir2u(magnitude, direction):
+    """
+    Calculates u component from magnitude and direction
+    Parameters
+    ----------
+    magnitude
+    direction
+    """
+    rad = 4.0 * np.arctan(1)/180.
+    u = -magnitude * np.sin(rad*direction)
+    return u
+
+
+def magdir2v(magnitude, direction):
+    """
+    Calculates v component from magnitude and direction
+    Parameters
+    ----------
+    magnitude
+    direction
+    """
+    rad = 4.0 * np.arctan(1)/180.
+    v = -magnitude * np.cos(rad*direction)
+    return v
 
 
 parser = argparse.ArgumentParser(description='Convert CF-compliant NetCDF files with vector attributes to GeoJSON.')

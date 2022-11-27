@@ -1,6 +1,6 @@
 # NetCDF to GeoJSON Vectors
 
-Convert CF-compliant NetCDF files with vector attributes to GeoJSON
+Convert CF-compliant NetCDF files with vector attributes (u, v, magnitude, direction) to GeoJSON.
 
 ## Usage
 
@@ -38,9 +38,10 @@ netcdf_to_geojson_vectors.py [-h] [-c CONFIG_FILE] [-d INPUT_DIR] [-i INPUT_FILE
 
 * latVar: Name of the `latitude` variable in the source data file
 * lonVar: Name of the `longitude` variable in the source data file
-* speedVar: Name of the `speed` variable in the source data file
-* dirVar: Name of the `direction` variable in the source data file
+* magnitudeVar: Name of the `magnitude` variable in the source data file
+* directionVar: Name of the `direction` variable in the source data file
 * uVar: Name of the `u` variable in the source data file
 * vVar: Name of the `v` variable in the source data file
-* convertUV: Convert `u` and `v` components to `speed` and `dir`
+* convertUV: Convert `u` and `v` components to `magnitude` and `direction`
+* convertMagDir: Convert `magnitude` and `direction` components to `u` and `v`
 * is360: Convert extents from `0 - 360` to `-180 - 180`
